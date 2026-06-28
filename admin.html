@@ -58,31 +58,151 @@
 <div class="container">
 
   <div class="howto">
-    <h2>কীভাবে ব্যবহার করবেন (ধাপে ধাপে)</h2>
+    <h2>কীভাবে ব্যবহার করবেন</h2>
     <ol>
-      <li>নিচে প্রতিটা প্রোডাক্ট কার্ডে নাম, দাম, বিবরণ যা চান বদলে দিন। ছবিতে ক্লিক করে নতুন ছবি আপলোড করুন (নিজের ফোন/কম্পিউটার থেকে সরাসরি বেছে নিন)।</li>
-      <li>কাজ করার সময় এমনিই স্বয়ংক্রিয়ভাবে সেভ হয়ে থাকবে এই ব্রাউজারে (উপরে ডানে "Draft saved" দেখাবে)। চাইলে যেকোনো সময় বন্ধ করে আবার এসে কাজ চালিয়ে যেতে পারবেন।</li>
-      <li>সব ঠিকঠাক হলে উপরে <strong>"Export app.js"</strong> বাটনে ক্লিক করুন — একটা <code>app.js</code> ফাইল ডাউনলোড হবে।</li>
-      <li>আপনার আগের ওয়েবসাইট ফোল্ডারে গিয়ে পুরোনো <code>app.js</code> ফাইলটা ডিলিট করে এই নতুন <code>app.js</code> ফাইলটা সেই জায়গায় রাখুন (নাম একই রাখবেন)।</li>
-      <li>পুরো ফোল্ডারটা আবার <strong>app.netlify.com/drop</strong> এ drag করে drop করুন — সাইট নতুন তথ্য দিয়ে আপডেট হয়ে যাবে।</li>
+      <li>নিচে প্রতিটা প্রোডাক্ট কার্ডে নাম, দাম, বিবরণ যা চান বদলে দিন। ছবিতে ক্লিক করে নতুন ছবি আপলোড করুন।</li>
+      <li>কাজ করার সময় এমনিই স্বয়ংক্রিয়ভাবে সেভ হয়ে থাকবে এই ব্রাউজারে।</li>
+      <li>নিচে একবার GitHub connect করে নিন, তারপর <strong>"Update Live Site"</strong> বাটনে ক্লিক করলেই সাইট সরাসরি আপডেট হয়ে যাবে — কোনো ডাউনলোড/আপলোড লাগবে না।</li>
     </ol>
+  </div>
+
+  <div class="howto" id="ghPanel" style="border-color:var(--gold);">
+    <h2>🚀 GitHub Connection (একবার সেটআপ করুন)</h2>
+    <div id="ghNotConnected">
+      <p style="color:#5c4f47;font-size:14px;margin-bottom:14px;">"Update Live Site" বাটন কাজ করার জন্য একটা GitHub token লাগবে। এটা একবার বসিয়ে রাখলে পরে আর লাগবে না — এই ব্রাউজারেই সেভ থাকে, কোথাও পাঠানো হয় না।</p>
+      <ol style="margin:0 0 16px;padding-left:20px;color:#5c4f47;font-size:14px;line-height:1.8;">
+        <li><a href="https://github.com/settings/tokens/new" target="_blank" rel="noopener" style="text-decoration:underline;color:var(--maroon);">github.com/settings/tokens/new</a> এ যান</li>
+        <li>Note: <code>azmere-admin</code>, Expiration: 90 দিন, শুধু <strong>"repo"</strong> checkbox টিক দিন, Generate করুন</li>
+        <li>কোডটা (ghp_... দিয়ে শুরু) কপি করে নিচে পেস্ট করুন</li>
+      </ol>
+      <div style="display:flex;gap:10px;max-width:560px;flex-wrap:wrap;">
+        <input type="text" id="ghTokenInput" placeholder="ghp_ দিয়ে শুরু হওয়া token এখানে পেস্ট করুন" style="flex:1;min-width:240px;">
+        <button class="btn btn-maroon" onclick="saveGhToken()">Save</button>
+      </div>
+    </div>
+    <div id="ghConnected" style="display:none;">
+      <p style="color:#3f7a4d;font-size:14px;margin-bottom:10px;">✓ GitHub-এর সাথে সংযুক্ত আছে। এখন "Update Live Site" বাটনে ক্লিক করলেই সাইট আপডেট হয়ে যাবে (২০-৩০ সেকেন্ড সময় লাগতে পারে)।</p>
+      <button class="btn btn-ghost" onclick="disconnectGh()">Token মুছে দিন / Disconnect</button>
+    </div>
   </div>
 
   <div class="toolbar">
     <h2>সব প্রোডাক্ট (<span id="countLbl">0</span>)</h2>
-    <button class="btn btn-maroon" onclick="addProduct()">+ নতুন প্রোডাক্ট যুক্ত করুন</button>
+    <div style="display:flex;gap:10px;">
+      <button class="btn btn-maroon" onclick="addProduct()">+ নতুন প্রোডাক্ট যুক্ত করুন</button>
+    </div>
   </div>
 
   <div id="productList"></div>
 
   <div class="toolbar">
-    <button class="btn btn-gold" onclick="exportAppJs()">Export app.js</button>
+    <button class="btn btn-ghost" onclick="exportAppJs()">Download app.js (ম্যানুয়াল উপায়)</button>
+    <button class="btn btn-gold" id="updateLiveBtn" onclick="updateLiveSite()">🚀 Update Live Site</button>
   </div>
 </div>
 
 <script src="app.js"></script>
 <script>
   const DRAFT_KEY = "azmere_admin_draft_v1";
+  const GH_TOKEN_KEY = "azmere_gh_token";
+  const GH_OWNER = "Hasan-Tutul";
+  const GH_REPO = "azmere-website";
+  const GH_PATH = "app.js";
+  const GH_BRANCH = "main";
+
+  function getGhToken(){ return localStorage.getItem(GH_TOKEN_KEY) || ""; }
+
+  function refreshGhPanel(){
+    const has = !!getGhToken();
+    document.getElementById("ghNotConnected").style.display = has ? "none" : "block";
+    document.getElementById("ghConnected").style.display = has ? "block" : "none";
+  }
+
+  function saveGhToken(){
+    const val = document.getElementById("ghTokenInput").value.trim();
+    if(!val.startsWith("ghp_") && !val.startsWith("github_pat_")){
+      alert("এটা সঠিক GitHub token মনে হচ্ছে না। token সাধারণত ghp_ দিয়ে শুরু হয়।");
+      return;
+    }
+    localStorage.setItem(GH_TOKEN_KEY, val);
+    refreshGhPanel();
+    toast("GitHub সংযুক্ত হয়েছে ✓");
+  }
+
+  function disconnectGh(){
+    if(!confirm("Token মুছে দিতে চান?")) return;
+    localStorage.removeItem(GH_TOKEN_KEY);
+    refreshGhPanel();
+  }
+
+  function utf8ToBase64(str){
+    const bytes = new TextEncoder().encode(str);
+    let binary = "";
+    bytes.forEach(b => binary += String.fromCharCode(b));
+    return btoa(binary);
+  }
+
+  function buildNewAppJsText(originalText, productsState){
+    const startMarker = "/* PRODUCTS_START */";
+    const endMarker = "/* PRODUCTS_END */";
+    const startIdx = originalText.indexOf(startMarker);
+    const endIdx = originalText.indexOf(endMarker);
+    if(startIdx === -1 || endIdx === -1) return null;
+    const before = originalText.slice(0, startIdx + startMarker.length);
+    const after = originalText.slice(endIdx);
+    const newProductsBlock = "\nconst PRODUCTS = " + JSON.stringify(productsState, null, 2) + ";\n";
+    return before + newProductsBlock + after;
+  }
+
+  async function updateLiveSite(){
+    const token = getGhToken();
+    if(!token){
+      alert("প্রথমে উপরে GitHub token বসিয়ে Save করুন।");
+      document.getElementById("ghPanel").scrollIntoView({behavior:"smooth"});
+      return;
+    }
+    const btn = document.getElementById("updateLiveBtn");
+    const oldLabel = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = "Updating...";
+    try{
+      const apiBase = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${GH_PATH}`;
+      const getRes = await fetch(`${apiBase}?ref=${GH_BRANCH}`, {
+        headers:{ "Authorization": "token " + token, "Accept":"application/vnd.github+json" }
+      });
+      if(!getRes.ok){
+        const errBody = await getRes.text();
+        throw new Error("Current file fetch failed (" + getRes.status + "): " + errBody);
+      }
+      const getData = await getRes.json();
+      const originalText = new TextDecoder().decode(Uint8Array.from(atob(getData.content.replace(/\n/g,"")), c=>c.charCodeAt(0)));
+      const newText = buildNewAppJsText(originalText, state);
+      if(!newText) throw new Error("PRODUCTS markers app.js এ পাওয়া যায়নি।");
+
+      const putRes = await fetch(apiBase, {
+        method:"PUT",
+        headers:{ "Authorization":"token " + token, "Accept":"application/vnd.github+json", "Content-Type":"application/json" },
+        body: JSON.stringify({
+          message: "Update products via Azmere admin panel",
+          content: utf8ToBase64(newText),
+          sha: getData.sha,
+          branch: GH_BRANCH
+        })
+      });
+      if(!putRes.ok){
+        const errBody = await putRes.text();
+        throw new Error("Update failed (" + putRes.status + "): " + errBody);
+      }
+      toast("✓ সাইট আপডেট হচ্ছে — ২০-৩০ সেকেন্ড পর azmere.netlify.app চেক করুন");
+    }catch(err){
+      console.error(err);
+      alert("আপডেট করা যায়নি। বিস্তারিত: " + err.message + "\n\nToken ঠিক আছে কিনা, আর expire হয়ে যায়নি কিনা চেক করুন।");
+    }finally{
+      btn.disabled = false;
+      btn.textContent = oldLabel;
+    }
+  }
+
   let state = loadDraft();
 
   function loadDraft(){
@@ -297,6 +417,7 @@
   }
 
   render();
+  refreshGhPanel();
 </script>
 </body>
 </html>
