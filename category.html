@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="pageTitle">Shop | Azmere</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Jost:wght@400;500;600&family=Noto+Sans+Bengali:wght@400;500&family=Noto+Serif+Bengali:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="page-banner">
+  <div class="container">
+    <div class="breadcrumb"><a href="index.html">Home</a><span>/</span><span id="bcCat">Shop</span></div>
+    <h1 id="catTitle">Shop</h1>
+  </div>
+</div>
+
+<section style="padding-top:40px;">
+  <div class="container">
+    <div class="filters-bar">
+      <div class="filters-left" id="catChips"></div>
+      <div style="display:flex;align-items:center;gap:16px;">
+        <span class="result-count" id="resultCount"></span>
+        <select class="sort-select" id="sortSelect">
+          <option value="featured">Sort: Featured</option>
+          <option value="low">Price: Low to High</option>
+          <option value="high">Price: High to Low</option>
+          <option value="new">Newest First</option>
+        </select>
+      </div>
+    </div>
+    <div class="prod-grid" id="prodGrid"></div>
+  </div>
+</section>
+
+<section class="newsletter">
+  <div class="container newsletter-inner">
+    <div>
+      <h2>Be first to know.</h2>
+      <p>New arrivals, festive offers and styling notes — straight to your inbox.</p>
+    </div>
+    <form class="newsletter-form" onsubmit="event.preventDefault(); toast('Subscribed! Welcome to Azmere.'); this.reset();">
+      <input type="email" placeholder="Your email address" required>
+      <button class="btn btn-gold" type="submit">Subscribe</button>
+    </form>
+  </div>
+</section>
+
+<script src="app.js"></script>
+<script>
+  const params = new URLSearchParams(location.search);
+  let activeCat = params.get("cat") || "all";
+
+  function setCat(slug){
+    activeCat = slug;
+    const url = new URL(location.href);
+    if(slug === "all") url.searchParams.delete("cat"); else url.searchParams.set("cat", slug);
+    history.replaceState(null, "", url);
+    renderHeader(slug);
+    document.querySelectorAll(".main-nav a, .mobile-nav a").forEach(a=>{}); // header already rebuilt
+    render();
+  }
+
+  function render(){
+    const title = activeCat === "all" ? "All Products" : catName(activeCat);
+    document.getElementById("pageTitle").textContent = title + " | Azmere";
+    document.getElementById("catTitle").textContent = title;
+    document.getElementById("bcCat").textContent = title;
+
+    document.getElementById("catChips").innerHTML = [{slug:"all",name:"All"}, ...CATEGORIES].map(c => `
+      <button class="chip ${activeCat===c.slug?'active':''}" onclick="setCat('${c.slug}')">${c.name}</button>
+    `).join("");
+
+    let list = activeCat === "all" ? PRODUCTS.slice() : PRODUCTS.filter(p=>p.cat===activeCat);
+
+    const sort = document.getElementById("sortSelect").value;
+    if(sort==="low") list.sort((a,b)=>a.price-b.price);
+    if(sort==="high") list.sort((a,b)=>b.price-a.price);
+    if(sort==="new") list.sort((a,b)=> (b.tag==="New"?1:0) - (a.tag==="New"?1:0));
+
+    document.getElementById("resultCount").textContent = `${list.length} item${list.length!==1?'s':''}`;
+
+    document.getElementById("prodGrid").innerHTML = list.map(p => `
+      <a class="prod-card" href="product.html?id=${p.id}">
+        <div class="prod-thumb">
+          ${p.tag ? `<span class="badge">${p.tag}</span>` : ""}
+          <img src="${img(p.images[0])}" alt="${p.name}">
+          <button class="quick-add" onclick="event.preventDefault();event.stopPropagation();addToCart('${p.id}','${p.colors[0]}','M',1);toast('${p.name} added to bag');">Quick Add</button>
+        </div>
+        <span class="prod-cat">${catName(p.cat)}</span>
+        <h3 class="prod-title">${p.name}</h3>
+        <div class="prod-price">${p.was ? `<span class="was">${fmt(p.was)}</span>`:""}${fmt(p.price)}</div>
+      </a>
+    `).join("") || `<p style="color:#8a7a6f;">No products found in this category yet.</p>`;
+  }
+
+  renderHeader(activeCat);
+  renderFooter();
+  document.getElementById("sortSelect").addEventListener("change", render);
+  render();
+</script>
+</body>
+</html>

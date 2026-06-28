@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="pageTitle">Product | Azmere</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Jost:wght@400;500;600&family=Noto+Sans+Bengali:wght@400;500&family=Noto+Serif+Bengali:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+  <div class="breadcrumb" style="color:#8a7a6f;">
+    <a href="index.html">Home</a><span>/</span>
+    <a href="category.html" id="bcCat">Shop</a><span>/</span>
+    <span id="bcProd">Product</span>
+  </div>
+
+  <div class="pv-wrap" id="pvWrap"></div>
+
+  <section>
+    <div class="accordion" id="accordion"></div>
+  </section>
+
+  <section style="padding-top:0;">
+    <div class="section-head">
+      <div><span class="section-eyebrow">You may also like</span><h2>Complete the look</h2></div>
+    </div>
+    <div class="prod-grid" id="relatedGrid"></div>
+  </section>
+</div>
+
+<script src="app.js"></script>
+<script>
+  const params = new URLSearchParams(location.search);
+  const product = findProduct(params.get("id")) || PRODUCTS[0];
+  let selectedColor = product.colors[0];
+  let selectedSize = "M";
+  let qty = 1;
+  let activeImgIdx = 0;
+
+  document.getElementById("pageTitle").textContent = product.name + " | Azmere";
+  document.getElementById("bcCat").textContent = catName(product.cat);
+  document.getElementById("bcCat").href = "category.html?cat=" + product.cat;
+  document.getElementById("bcProd").textContent = product.name;
+
+  function renderGallery(){
+    return `
+      <div class="pv-gallery">
+        <div class="pv-thumbs">
+          ${product.images.map((im,i)=>`<button class="${i===activeImgIdx?'active':''}" onclick="activeImgIdx=${i};renderAll();"><img src="${img(im,200,260)}" alt="thumbnail ${i+1}"></button>`).join("")}
+        </div>
+        <div class="pv-main"><img src="${img(product.images[activeImgIdx])}" alt="${product.name}"></div>
+      </div>`;
+  }
+
+  function renderInfo(){
+    const inStock = product.stock > 0;
+    return `
+      <div class="pv-info">
+        <span class="prod-cat">${catName(product.cat)} · ${product.id}</span>
+        <h1>${product.name}</h1>
+        <div class="pv-price-row">
+          <span class="pv-price">${fmt(product.price)}</span>
+          ${product.was ? `<span class="was">${fmt(product.was)}</span><span class="pv-save">Save ${fmt(product.was-product.price)}</span>` : ""}
+        </div>
+        <div class="pv-stock">${inStock ? `● In stock — ${product.stock} left` : "● Out of stock"}</div>
+        <p style="color:#5c4f47;font-size:14.5px;max-width:460px;">${product.desc}</p>
+        <div class="pv-divider"></div>
+
+        <div class="option-block">
+          <div class="option-label"><span>Colour</span><span>${selectedColor}</span></div>
+          <div class="swatches">
+            ${product.colors.map(c=>`<button class="swatch ${c===selectedColor?'active':''}" onclick="selectedColor='${c}';renderAll();">${c}</button>`).join("")}
+          </div>
+        </div>
+
+        <div class="option-block">
+          <div class="option-label"><span>Size</span><a href="#" onclick="event.preventDefault();toast('S · M · L · XL · XXL — see size chart on care label')" style="text-decoration:underline;font-size:11.5px;">Size guide</a></div>
+          <div class="swatches">
+            ${SIZES.map(s=>`<button class="swatch ${s===selectedSize?'active':''}" onclick="selectedSize='${s}';renderAll();">${s}</button>`).join("")}
+          </div>
+        </div>
+
+        <div class="qty-row">
+          <div class="qty-stepper">
+            <button onclick="qty=Math.max(1,qty-1);renderAll();" aria-label="Decrease quantity">−</button>
+            <span>${qty}</span>
+            <button onclick="qty=qty+1;renderAll();" aria-label="Increase quantity">+</button>
+          </div>
+        </div>
+
+        <div class="pv-actions">
+          <button class="btn btn-maroon btn-block" ${inStock?'':'disabled'} onclick="addToCart('${product.id}',selectedColor,selectedSize,qty);toast('Added to bag');">Add to Cart</button>
+          <a class="btn btn-gold btn-block" href="${inStock?'checkout.html':'#'}" onclick="${inStock?`addToCart('${product.id}',selectedColor,selectedSize,qty);`:'event.preventDefault();'}">Buy Now</a>
+        </div>
+
+        <div class="pv-meta">
+          <strong>Fabric:</strong> ${product.fabric}<br>
+          <strong>Delivery:</strong> 2–4 days inside Dhaka, 4–7 days outside Dhaka<br>
+          <strong>Returns:</strong> 3-day exchange on unworn items
+        </div>
+      </div>`;
+  }
+
+  function renderAccordion(){
+    return `
+      <details class="accordion-item" open>
+        <summary>Product Details</summary>
+        <div class="accordion-body">${product.desc}</div>
+      </details>
+      <details class="accordion-item">
+        <summary>Fabric &amp; Care</summary>
+        <div class="accordion-body"><strong>Fabric:</strong> ${product.fabric}<br><strong>Care:</strong> ${product.care}</div>
+      </details>
+      <details class="accordion-item">
+        <summary>Delivery &amp; Returns</summary>
+        <div class="accordion-body">Delivery in 2–4 days inside Dhaka and 4–7 days nationwide. Cash on delivery available. Items may be exchanged within 3 days of delivery if unworn and tags are attached.</div>
+      </details>`;
+  }
+
+  function relatedCard(p){
+    return `
+      <a class="prod-card" href="product.html?id=${p.id}">
+        <div class="prod-thumb">
+          ${p.tag ? `<span class="badge">${p.tag}</span>` : ""}
+          <img src="${img(p.images[0])}" alt="${p.name}">
+        </div>
+        <span class="prod-cat">${catName(p.cat)}</span>
+        <h3 class="prod-title">${p.name}</h3>
+        <div class="prod-price">${fmt(p.price)}</div>
+      </a>`;
+  }
+
+  function renderAll(){
+    document.getElementById("pvWrap").innerHTML = renderGallery() + renderInfo();
+    document.getElementById("accordion").innerHTML = renderAccordion();
+  }
+
+  renderHeader(product.cat);
+  renderFooter();
+  renderAll();
+
+  document.getElementById("relatedGrid").innerHTML = PRODUCTS
+    .filter(p=>p.cat===product.cat && p.id!==product.id)
+    .slice(0,4)
+    .map(relatedCard).join("") || PRODUCTS.filter(p=>p.id!==product.id).slice(0,4).map(relatedCard).join("");
+</script>
+</body>
+</html>

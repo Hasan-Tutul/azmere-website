@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Cart | Azmere</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Jost:wght@400;500;600&family=Noto+Sans+Bengali:wght@400;500&family=Noto+Serif+Bengali:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="page-banner">
+  <div class="container">
+    <div class="breadcrumb"><a href="index.html">Home</a><span>/</span><span>Cart</span></div>
+    <h1>Your Cart</h1>
+  </div>
+</div>
+
+<section>
+  <div class="container" id="cartContainer"></div>
+</section>
+
+<script src="app.js"></script>
+<script>
+  function renderCartPage(){
+    const cart = getCart();
+    const container = document.getElementById("cartContainer");
+
+    if(cart.length === 0){
+      container.innerHTML = `
+        <div class="empty-state">
+          <h2>Your cart is empty</h2>
+          <p>Looks like you haven't added anything yet. Let's find something beautiful.</p>
+          <a href="category.html" class="btn btn-maroon">Continue Shopping</a>
+        </div>`;
+      return;
+    }
+
+    const linesHtml = cart.map((line,i) => {
+      const p = findProduct(line.id);
+      if(!p) return "";
+      return `
+        <div class="cart-line">
+          <img src="${img(p.images[0],200,260)}" alt="${p.name}">
+          <div>
+            <div class="cart-line-title">${p.name}</div>
+            <div class="cart-line-opt">Colour: ${line.color} · Size: ${line.size}</div>
+            <div class="qty-stepper" style="margin-top:10px;width:fit-content;">
+              <button onclick="setCartQty(${i}, ${line.qty-1})" aria-label="Decrease quantity">−</button>
+              <span>${line.qty}</span>
+              <button onclick="setCartQty(${i}, ${line.qty+1})" aria-label="Increase quantity">+</button>
+            </div>
+            <button class="cart-line-remove" onclick="removeFromCart(${i})">Remove</button>
+          </div>
+          <div class="cart-line-price">${fmt(p.price * line.qty)}</div>
+        </div>`;
+    }).join("");
+
+    const subtotal = cartTotal();
+    const delivery = subtotal >= 3000 || subtotal===0 ? 0 : 80;
+    const total = subtotal + delivery;
+
+    container.innerHTML = `
+      <div class="cart-wrap">
+        <div>${linesHtml}</div>
+        <div class="summary-card">
+          <h3>Order Summary</h3>
+          <div class="promo-row">
+            <input type="text" placeholder="Promo code">
+            <button class="btn btn-ghost" onclick="toast('Promo codes coming soon')">Apply</button>
+          </div>
+          <div class="summary-row"><span>Subtotal</span><span>${fmt(subtotal)}</span></div>
+          <div class="summary-row"><span>Delivery</span><span>${delivery===0 ? "Free" : fmt(delivery)}</span></div>
+          <div class="summary-row total"><span>Total</span><span>${fmt(total)}</span></div>
+          <a href="checkout.html" class="btn btn-maroon btn-block" style="margin-top:18px;">Proceed to Checkout</a>
+          <a href="category.html" class="btn btn-ghost btn-block" style="margin-top:10px;">Continue Shopping</a>
+        </div>
+      </div>`;
+  }
+
+  renderHeader("");
+  renderFooter();
+  renderCartPage();
+</script>
+</body>
+</html>

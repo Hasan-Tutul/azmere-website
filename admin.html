@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Admin — Azmere</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Jost:wght@400;500;600&family=Noto+Sans+Bengali:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  body{background:var(--cream-2);}
+  .admin-header{background:var(--maroon-deep);color:var(--gold-soft);padding:22px 0;}
+  .admin-header .container{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;}
+  .admin-header h1{color:var(--white);font-size:24px;}
+  .admin-actions{display:flex;gap:12px;flex-wrap:wrap;}
+  .howto{background:var(--white);border:1px solid var(--line);border-radius:6px;padding:22px 26px;margin:28px 0;}
+  .howto h2{font-size:19px;margin-bottom:12px;}
+  .howto ol{margin:0;padding-left:20px;color:#5c4f47;font-size:14.5px;line-height:1.9;}
+  .howto code{background:var(--cream-2);padding:2px 6px;border-radius:3px;font-size:13px;}
+  .toolbar{display:flex;justify-content:space-between;align-items:center;margin:30px 0 16px;flex-wrap:wrap;gap:12px;}
+  .toolbar h2{font-size:20px;}
+  .pcard{background:var(--white);border:1px solid var(--line);border-radius:6px;padding:22px;margin-bottom:18px;}
+  .pcard-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+  .pcard-top .pid{font-family:var(--label);font-size:12px;letter-spacing:.08em;color:var(--maroon-soft);text-transform:uppercase;}
+  .pcard-grid{display:grid;grid-template-columns:220px 1fr;gap:24px;}
+  .img-upload-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;}
+  .img-slot{position:relative;width:96px;height:124px;border:1px dashed var(--line);border-radius:4px;overflow:hidden;background:var(--cream-2);display:flex;align-items:center;justify-content:center;cursor:pointer;}
+  .img-slot img{width:100%;height:100%;object-fit:cover;}
+  .img-slot .lbl{font-size:10.5px;color:#8a7a6f;text-align:center;font-family:var(--label);}
+  .img-slot input{position:absolute;inset:0;opacity:0;cursor:pointer;}
+  .img-slot .rm{position:absolute;top:2px;right:2px;background:rgba(33,16,18,.75);color:#fff;border:none;width:18px;height:18px;border-radius:50%;font-size:11px;line-height:1;z-index:2;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+  .fld{margin-bottom:14px;}
+  .fld label{margin-bottom:6px;}
+  .fld textarea{width:100%;border:1px solid var(--line);background:var(--cream);padding:11px 12px;font-family:var(--body);font-size:13.5px;border-radius:4px;min-height:64px;}
+  .fld input, .fld select{padding:11px 12px;font-size:13.5px;}
+  .danger-btn{background:none;border:1px solid #b23b3b;color:#b23b3b;font-family:var(--label);font-size:12px;padding:9px 14px;border-radius:4px;letter-spacing:.04em;}
+  .danger-btn:hover{background:#b23b3b;color:#fff;}
+  .saved-pill{font-family:var(--label);font-size:12px;color:#3f7a4d;display:none;}
+  .saved-pill.show{display:inline-flex;align-items:center;gap:6px;}
+  .new-pill{background:var(--gold-soft);color:var(--maroon-deep);font-size:10px;padding:3px 8px;border-radius:3px;font-family:var(--label);letter-spacing:.06em;margin-left:8px;}
+</style>
+</head>
+<body>
+
+<div class="admin-header">
+  <div class="container">
+    <h1>Azmere — Product Editor</h1>
+    <div class="admin-actions">
+      <span class="saved-pill" id="savedPill">✓ Draft saved</span>
+      <button class="btn btn-outline" style="color:var(--gold-soft);border-color:var(--gold-soft);" onclick="resetDraft()">Reset to Live Version</button>
+      <button class="btn btn-gold" onclick="exportAppJs()">Export app.js</button>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="howto">
+    <h2>কীভাবে ব্যবহার করবেন (ধাপে ধাপে)</h2>
+    <ol>
+      <li>নিচে প্রতিটা প্রোডাক্ট কার্ডে নাম, দাম, বিবরণ যা চান বদলে দিন। ছবিতে ক্লিক করে নতুন ছবি আপলোড করুন (নিজের ফোন/কম্পিউটার থেকে সরাসরি বেছে নিন)।</li>
+      <li>কাজ করার সময় এমনিই স্বয়ংক্রিয়ভাবে সেভ হয়ে থাকবে এই ব্রাউজারে (উপরে ডানে "Draft saved" দেখাবে)। চাইলে যেকোনো সময় বন্ধ করে আবার এসে কাজ চালিয়ে যেতে পারবেন।</li>
+      <li>সব ঠিকঠাক হলে উপরে <strong>"Export app.js"</strong> বাটনে ক্লিক করুন — একটা <code>app.js</code> ফাইল ডাউনলোড হবে।</li>
+      <li>আপনার আগের ওয়েবসাইট ফোল্ডারে গিয়ে পুরোনো <code>app.js</code> ফাইলটা ডিলিট করে এই নতুন <code>app.js</code> ফাইলটা সেই জায়গায় রাখুন (নাম একই রাখবেন)।</li>
+      <li>পুরো ফোল্ডারটা আবার <strong>app.netlify.com/drop</strong> এ drag করে drop করুন — সাইট নতুন তথ্য দিয়ে আপডেট হয়ে যাবে।</li>
+    </ol>
+  </div>
+
+  <div class="toolbar">
+    <h2>সব প্রোডাক্ট (<span id="countLbl">0</span>)</h2>
+    <button class="btn btn-maroon" onclick="addProduct()">+ নতুন প্রোডাক্ট যুক্ত করুন</button>
+  </div>
+
+  <div id="productList"></div>
+
+  <div class="toolbar">
+    <button class="btn btn-gold" onclick="exportAppJs()">Export app.js</button>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+  const DRAFT_KEY = "azmere_admin_draft_v1";
+  let state = loadDraft();
+
+  function loadDraft(){
+    try{
+      const raw = localStorage.getItem(DRAFT_KEY);
+      if(raw) return JSON.parse(raw);
+    }catch(e){}
+    return JSON.parse(JSON.stringify(PRODUCTS)); // fresh clone of live data
+  }
+
+  function saveDraft(){
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(state));
+    const pill = document.getElementById("savedPill");
+    pill.classList.add("show");
+    clearTimeout(window.__pillTimer);
+    window.__pillTimer = setTimeout(()=>pill.classList.remove("show"), 1800);
+  }
+
+  function resetDraft(){
+    if(!confirm("আপনার এখন পর্যন্ত করা সব পরিবর্তন মুছে গিয়ে লাইভ সাইটের তথ্য ফিরে আসবে। এগিয়ে যাবেন?")) return;
+    state = JSON.parse(JSON.stringify(PRODUCTS));
+    saveDraft();
+    render();
+  }
+
+  function resizeImage(file, maxW){
+    return new Promise((resolve,reject)=>{
+      const reader = new FileReader();
+      reader.onload = (e)=>{
+        const im = new Image();
+        im.onload = ()=>{
+          const scale = Math.min(1, maxW / im.width);
+          const canvas = document.createElement("canvas");
+          canvas.width = im.width * scale;
+          canvas.height = im.height * scale;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(im, 0, 0, canvas.width, canvas.height);
+          resolve(canvas.toDataURL("image/jpeg", 0.82));
+        };
+        im.onerror = reject;
+        im.src = e.target.result;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function onImagePicked(pIndex, slotIndex, input){
+    const file = input.files[0];
+    if(!file) return;
+    resizeImage(file, 1000).then(dataUrl=>{
+      while(state[pIndex].images.length <= slotIndex) state[pIndex].images.push(null);
+      state[pIndex].images[slotIndex] = dataUrl;
+      saveDraft();
+      render();
+    });
+  }
+
+  function removeImage(pIndex, slotIndex){
+    state[pIndex].images[slotIndex] = null;
+    state[pIndex].images = state[pIndex].images.filter(Boolean);
+    if(state[pIndex].images.length === 0) state[pIndex].images = ["placeholder-" + state[pIndex].id];
+    saveDraft();
+    render();
+  }
+
+  function updateField(pIndex, field, value){
+    state[pIndex][field] = value;
+    saveDraft();
+  }
+
+  function updateNumberField(pIndex, field, value){
+    const n = value === "" ? null : Number(value);
+    state[pIndex][field] = n;
+    saveDraft();
+  }
+
+  function updateColors(pIndex, value){
+    state[pIndex].colors = value.split(",").map(s=>s.trim()).filter(Boolean);
+    saveDraft();
+  }
+
+  function deleteProduct(pIndex){
+    if(!confirm("এই প্রোডাক্টটা ডিলিট করতে চান?")) return;
+    state.splice(pIndex,1);
+    saveDraft();
+    render();
+  }
+
+  function addProduct(){
+    const newId = "AZ-" + Math.floor(8000 + Math.random()*1900);
+    state.unshift({
+      id:newId, cat:"three-piece", name:"নতুন প্রোডাক্টের নাম", price:1500, was:null, stock:10, tag:"New",
+      colors:["Maroon"], desc:"প্রোডাক্টের বিবরণ এখানে লিখুন।", fabric:"", care:"", images:["placeholder-"+newId]
+    });
+    saveDraft();
+    render();
+  }
+
+  function imgSlot(pIndex, slotIndex, url){
+    const safeUrl = url && !url.startsWith("placeholder-") ? url : "";
+    return `
+      <div class="img-slot">
+        ${safeUrl ? `<img src="${img(safeUrl)}" alt="">` : `<span class="lbl">ছবি যুক্ত<br>করুন</span>`}
+        <input type="file" accept="image/*" onchange="onImagePicked(${pIndex},${slotIndex},this)">
+        ${safeUrl ? `<button class="rm" onclick="event.preventDefault();removeImage(${pIndex},${slotIndex})">✕</button>` : ""}
+      </div>`;
+  }
+
+  function productCard(p, i){
+    const imgs = p.images && p.images.length ? p.images : ["placeholder-"+p.id];
+    const slots = [0,1,2].map(s => imgSlot(i, s, imgs[s] || null)).join("");
+    return `
+      <div class="pcard">
+        <div class="pcard-top">
+          <span class="pid">${p.id}</span>
+          <button class="danger-btn" onclick="deleteProduct(${i})">ডিলিট করুন</button>
+        </div>
+        <div class="pcard-grid">
+          <div>
+            <div class="img-upload-row">${slots}</div>
+            <span style="font-family:var(--label);font-size:11px;color:#8a7a6f;">৩টা পর্যন্ত ছবি দিতে পারবেন</span>
+          </div>
+          <div>
+            <div class="grid2">
+              <div class="fld">
+                <label>প্রোডাক্টের নাম</label>
+                <input type="text" value="${escapeAttr(p.name)}" oninput="updateField(${i},'name',this.value)">
+              </div>
+              <div class="fld">
+                <label>ক্যাটাগরি</label>
+                <select onchange="updateField(${i},'cat',this.value)">
+                  ${CATEGORIES.map(c=>`<option value="${c.slug}" ${p.cat===c.slug?'selected':''}>${c.name}</option>`).join("")}
+                </select>
+              </div>
+            </div>
+            <div class="grid3">
+              <div class="fld">
+                <label>দাম (৳)</label>
+                <input type="number" value="${p.price ?? ''}" oninput="updateNumberField(${i},'price',this.value)">
+              </div>
+              <div class="fld">
+                <label>আগের দাম (অপশনাল)</label>
+                <input type="number" value="${p.was ?? ''}" oninput="updateNumberField(${i},'was',this.value)">
+              </div>
+              <div class="fld">
+                <label>স্টক সংখ্যা</label>
+                <input type="number" value="${p.stock ?? ''}" oninput="updateNumberField(${i},'stock',this.value)">
+              </div>
+            </div>
+            <div class="grid2">
+              <div class="fld">
+                <label>ট্যাগ (যেমন New, Bestseller) — খালি রাখতে পারেন</label>
+                <input type="text" value="${escapeAttr(p.tag||'')}" oninput="updateField(${i},'tag',this.value || null)">
+              </div>
+              <div class="fld">
+                <label>রং (কমা দিয়ে আলাদা করুন)</label>
+                <input type="text" value="${escapeAttr((p.colors||[]).join(', '))}" oninput="updateColors(${i},this.value)">
+              </div>
+            </div>
+            <div class="fld">
+              <label>বিবরণ (Description)</label>
+              <textarea oninput="updateField(${i},'desc',this.value)">${escapeHtml(p.desc||'')}</textarea>
+            </div>
+            <div class="grid2">
+              <div class="fld">
+                <label>ফেব্রিক</label>
+                <input type="text" value="${escapeAttr(p.fabric||'')}" oninput="updateField(${i},'fabric',this.value)">
+              </div>
+              <div class="fld">
+                <label>কেয়ার ইনস্ট্রাকশন</label>
+                <input type="text" value="${escapeAttr(p.care||'')}" oninput="updateField(${i},'care',this.value)">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  function escapeAttr(s){ return String(s).replace(/"/g,"&quot;"); }
+  function escapeHtml(s){ return String(s).replace(/</g,"&lt;"); }
+
+  function render(){
+    document.getElementById("countLbl").textContent = state.length;
+    document.getElementById("productList").innerHTML = state.map((p,i)=>productCard(p,i)).join("");
+  }
+
+  function exportAppJs(){
+    fetch("app.js").then(r=>r.text()).then(text=>{
+      const startMarker = "/* PRODUCTS_START */";
+      const endMarker = "/* PRODUCTS_END */";
+      const startIdx = text.indexOf(startMarker);
+      const endIdx = text.indexOf(endMarker);
+      if(startIdx === -1 || endIdx === -1){
+        alert("app.js ফাইলে প্রয়োজনীয় মার্কার পাওয়া যায়নি। ম্যানুয়ালি আপডেট করতে হবে।");
+        return;
+      }
+      const before = text.slice(0, startIdx + startMarker.length);
+      const after = text.slice(endIdx);
+      const newProductsBlock = "\nconst PRODUCTS = " + JSON.stringify(state, null, 2) + ";\n";
+      const newText = before + newProductsBlock + after;
+      const blob = new Blob([newText], {type:"text/javascript"});
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "app.js";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }).catch(()=>{
+      alert("app.js fetch করা যাচ্ছে না। এই পেজটা সরাসরি Netlify লাইভ লিংক থেকে খুলে ব্যবহার করুন (ফোল্ডার থেকে ডাবল-ক্লিক করে নয়)।");
+    });
+  }
+
+  render();
+</script>
+</body>
+</html>
