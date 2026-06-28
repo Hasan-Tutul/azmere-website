@@ -430,6 +430,8 @@ function toast(msg){
 
 /* ---------------- Header / Footer injection ---------------- */
 function renderHeader(active){
+  document.querySelectorAll(".topbar, .site-header, .scrim, .mobile-nav").forEach(el => el.remove());
+
   const navItems = [
     { href:"index.html", label:"Home", key:"home" },
     { href:"category.html?cat=three-piece", label:"Three-Piece", key:"three-piece" },
